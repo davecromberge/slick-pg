@@ -1,5 +1,6 @@
 package com.github.tminglei.slickpg
 
+import java.time.LocalDate
 import java.sql.{Date, Timestamp}
 import slick.jdbc.{JdbcType, PositionedResult, PostgresProfile}
 import scala.reflect.classTag
@@ -42,7 +43,12 @@ object Range {
 trait PgRangeSupport extends range.PgRangeExtensions with utils.PgCommonJdbcTypes { driver: PostgresProfile =>
   import driver.api._
 
-  private def toTimestamp(str: String) = Timestamp.valueOf(str)
+  private def toTimestamp(str: String) = str match {
+    case "infinity" => Timestamp.valueOf(LocalDate.now.atStartOfDay)
+    case "-infinity" => Timestamp.valueOf(LocalDate.of(2014, 1, 1).atStartOfDay)
+    case s => Timestamp.valueOf(s)
+  }
+
   private def toSQLDate(str: String) = Date.valueOf(str)
 
   trait SimpleRangeCodeGenSupport {
